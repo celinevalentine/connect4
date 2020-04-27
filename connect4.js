@@ -10,6 +10,7 @@ const HEIGHT = 6;
 
 let currPlayer = 1; // active player: 1 or 2
 let board = []; // array of rows, each row is array of cells  (board[y][x])
+//board array is the model and table is the view, whenver board changes, view needs to update (eg: line 112 and 113)
 
 /** makeBoard: create in-JS board structure:
  *    board = array of rows, each row is array of cells  (board[y][x])
@@ -18,8 +19,8 @@ let board = []; // array of rows, each row is array of cells  (board[y][x])
 function makeBoard() {
 
     //let x = col (add up to width), y = row (add up to height), outerloop to make rows and innerloop to make col
-    for (let y = 0; y < WIDTH; y++) {
-        board.push(new Array(7));
+    for (let y = 0; y < HEIGHT; y++) {
+        board.push(Array.from({ length: WIDTH }));
     }
 }
 /** makeHtmlBoard: make HTML table and row of column tops. */
@@ -53,17 +54,18 @@ function makeHtmlBoard() {
     }
 }
 
-/** findSpotForCol: given column x, return top empty y (null if filled) */
+/** findSpotForCol: given column x, return lowest row y with empty cell (null if filled) */
 
 function findSpotForCol(x) {
     // TODO: write the real version of this, rather than always returning 0
-    //loop rows from (y-1) on bottom to look for empty cell on col x, or return 0
+    //loop rows from (y-1) on bottom to look for empty cell on col x, or return 0, user needs to know lowest free cell in the col!
     for (let y = HEIGHT - 1; y >= 0; y--) {
-        //if empty cell is NOT occupied, then return y to keep searching?
+        //if cell is empty, then return y to see which row that empty cell is
         if (!board[y][x]) {
             return y;
         }
     }
+    //if no empty cells in col x, return null-might be other empty cells in other col
     return null;
 }
 
@@ -86,6 +88,7 @@ function placeInTable(y, x) {
 function endGame(msg) {
     // TODO: pop up alert message
     // const msg = `"Player ${currPlayer} won!"`
+    //line 103 and 108 specifiy about msg, so can't define msg for tie or winner endgame outcomes
     alert(msg);
 }
 
@@ -93,8 +96,10 @@ function endGame(msg) {
 
 function handleClick(evt) {
     // get x from ID of clicked cell
-    //why +evt?
-    const x = +evt.target.id;
+    //why +evt, not a good way of converting str to num; once clicked, ID will be betw 0-6
+    // const x = +evt.target.id;
+    const x = Number(evt.target.id);
+
 
     // get next spot in column (if none, ignore click)
     const y = findSpotForCol(x);
